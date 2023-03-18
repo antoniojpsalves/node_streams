@@ -17,7 +17,8 @@ const server = http.createServer((req, res) => {
   const { method, url } = req;
 
   if(method == 'GET' && url == '/user') {
-    return res.setHeader("content-type", "application/json").end(JSON.stringify(users));
+    // Toda rota encontrada tem como padrão o status code 200 como resposta.
+    return res.setHeader("Content-type", "application/json").end(JSON.stringify(users));
   } 
 
   if(method == 'POST' && url == '/user') {
@@ -27,10 +28,10 @@ const server = http.createServer((req, res) => {
       email: "antonio@gmail.com"
     });
 
-    return res.end("Criação de um novo usuário");
+    return res.writeHead(201).end();
   }
 
-  res.end('Hello World');
+  res.writeHead(404).end();
 });
 
 server.listen(3333);
