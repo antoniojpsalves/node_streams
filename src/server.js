@@ -15,11 +15,25 @@ import { routes } from './routes.js';
 
 
 
+//Três formas de invio de informação para o backend
+
+// Query Parameters: -> parametros nomeados que enviamos no próprio endereço da request (utilizado quando a url precisa ser Stateful)
+// Utilizada para modificar a resposta apresentada, sem conter informações sensíveis, tipo filtros, paginação etc. Não é obrigatório.
+// EX: http://localhost/users?group=123&status=ativo
+
+// Route parameters: -> parametros não nomeados que enviamos diretamente via ROTA.
+// Utilizado para identificação de um recurso.
+// EX: http://localhost/users/1
+
+
+// Request body: utilizado para envio de informações de um formulário
+// Os dados enviados via body, não são fáceis de interceptar e passam pelo protocolo HTTPS.
+//
+
+
 const server = http.createServer( async (req, res) => {
 
   const { method, url } = req;
-
-  // console.log(body.name);
 
   await json(req, res);
 
@@ -27,11 +41,8 @@ const server = http.createServer( async (req, res) => {
     return route.method === method && route.path === url;
   });
 
-  if(route) {
+  if(route) 
     return route.handle(req, res);
-  }
-
-  // console.log(route);
 
   res.writeHead(404).end();
 });
