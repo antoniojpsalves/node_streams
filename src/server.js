@@ -1,7 +1,7 @@
-import { randomUUID } from 'node:crypto';
 import http from 'node:http';
 import { json } from './middlewares/json.js';
-import { Database } from './database.js';
+import { routes } from './routes.js';
+
 
 //GET => buscar um recurso no backend
 //POST => Criar um recurso no backend
@@ -13,7 +13,7 @@ import { Database } from './database.js';
 // Stateful = aplicação depende de informação armazenada em memória. Seu comportamento se altera, ao recarregar a página.
 // Stateless -> armazena os dados em alguma outra fonte permanente, como um banco de dados. E se comporta num padrão.
 
-const database = new Database();
+
 
 const server = http.createServer( async (req, res) => {
 
@@ -23,23 +23,15 @@ const server = http.createServer( async (req, res) => {
 
   await json(req, res);
 
-  if(method == 'GET' && url == '/users') {
-    // Toda rota encontrada tem como padrão o status code 200 como resposta.
-    const users = database.selectAllData('users');
-    return res.setHeader("Content-type", "application/json").end(JSON.stringify(users));
-  } 
+  const route = routes.find( route => {
+    return route.method === method && route.path === url;
+  });
 
-  if(method == 'POST' && url == '/users') {
-    //adicionando o json vindo pelo body
-    const user ={
-      id: randomUUID(),
-      ...req.body
-    };
-
-    database.insert('users', user);
-
-    return res.writeHead(201).end();
+  if(route) {
+    return route.handle(req, res);
   }
+
+  // console.log(route);
 
   res.writeHead(404).end();
 });
